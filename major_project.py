@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[1]:
+
+
 import numpy as np
 import os
 import matplotlib
@@ -18,8 +24,19 @@ import tensorflow.compat.v1 as tf
 
 tf.disable_v2_behavior() 
 
+
+# ## Path defined
+
+# In[2]:
+
+
 genuine_image_paths = "C:\\Users\\RGUKT\\Desktop\\Mahipal\\major-project-2\\Signature-Forgery-Detection\\real"
 forged_image_paths = "C:\\Users\\RGUKT\\Desktop\\Mahipal\\major-project-2\\Signature-Forgery-Detection\\forged"
+
+
+# ## Preprocessing the image
+
+# In[3]:
 
 
 def rgbgrey(img):
@@ -30,6 +47,10 @@ def rgbgrey(img):
             greyimg[row][col] = np.average(img[row][col])
     return greyimg
 
+
+# In[4]:
+
+
 def greybin(img):
     # Converts grayscale to binary
     blur_radius = 0.8
@@ -39,6 +60,10 @@ def greybin(img):
     binimg = img > thres
     binimg = np.logical_not(binimg)
     return binimg
+
+
+# In[5]:
+
 
 def preproc(path, img=None, display=True):
     if img is None:
@@ -63,6 +88,13 @@ def preproc(path, img=None, display=True):
         plt.show()
     return signimg
 
+
+# ## Feature Extraction
+# 
+
+# In[6]:
+
+
 def Ratio(img):
     a = 0
     for row in range(len(img)):
@@ -71,6 +103,10 @@ def Ratio(img):
                 a = a+1
     total = img.shape[0] * img.shape[1]
     return a/total
+
+
+# In[7]:
+
 
 def Centroid(img):
     numOfWhites = 0
@@ -86,9 +122,16 @@ def Centroid(img):
     centroid = centroid/rowcols
     return centroid[0], centroid[1]
 
+
+# In[8]:
+
+
 def EccentricitySolidity(img):
     r = regionprops(img.astype("int8"))
     return r[0].eccentricity, r[0].solidity
+
+
+# In[9]:
 
 
 def SkewKurtosis(img):
@@ -123,6 +166,8 @@ def SkewKurtosis(img):
     return (skewx , skewy), (kurtx, kurty)
 
 
+# In[10]:
+
 
 def getFeatures(path, img=None, display=False):
     if img is None:
@@ -135,6 +180,10 @@ def getFeatures(path, img=None, display=False):
     retVal = (ratio, centroid, eccentricity, solidity, skewness, kurtosis)
     return retVal
 
+
+# In[11]:
+
+
 def getCSVFeatures(path, img=None, display=False):
     if img is None:
         img = mpimg.imread(path)
@@ -142,7 +191,11 @@ def getCSVFeatures(path, img=None, display=False):
     features = (temp[0], temp[1][0], temp[1][1], temp[2], temp[3], temp[4][0], temp[4][1], temp[5][0], temp[5][1])
     return features
 
-import os
+
+# ## Saving the features
+
+# In[12]:
+
 
 def makeCSV():
     genuine_image_paths = "C:\\Users\\RGUKT\\Desktop\\Mahipal\\major-project-2\\Signature-Forgery-Detection\\real"
@@ -193,24 +246,42 @@ def makeCSV():
 
 # You'll need to define the getCSVFeatures() function elsewhere in your code.
 
-            
+
+# In[ ]:
+
+
+
+
+
+# In[13]:
+
+
 makeCSV()
+
+
+# # TF Model 
+
+# In[14]:
 
 
 def testing(path):
     feature = getCSVFeatures(path)
-    if not(os.path.exists('C:\\Users\\SAINI SARKAR\\Desktop\\AxisBankAiChallenge-master\\TestFeatures')):
-        os.mkdir('C:\\Users\\SAINI SARKAR\\Desktop\\AxisBankAiChallenge-master\\TestFeatures')
-    with open('C:\\Users\\SAINI SARKAR\\Desktop\\AxisBankAiChallenge-master\\TestFeatures\\testcsv.csv', 'w') as handle:
+    if not(os.path.exists('C:\\Users\\RGUKT\\Desktop\\Mahipal\\major-project-2\\Signature-Forgery-Detection/TestFeatures')):
+        os.mkdir('C:\\Users\\RGUKT\\Desktop\\Mahipal\\major-project-2\\Signature-Forgery-Detection/TestFeatures')
+    with open('C:\\Users\\RGUKT\\Desktop\\Mahipal\\major-project-2\\Signature-Forgery-Detection\\TestFeatures/testcsv.csv', 'w') as handle:
         handle.write('ratio,cent_y,cent_x,eccentricity,solidity,skew_x,skew_y,kurt_x,kurt_y\n')
         handle.write(','.join(map(str, feature))+'\n')
+
+
+# In[16]:
+
 
 n_input = 9
 train_person_id = input("Enter person's id : ")
 test_image_path = input("Enter path of signature image : ")
-train_path = 'C:\\Users\\SAINI SARKAR\\Desktop\\AxisBankAiChallenge-master\\Features\\Training\\training_'+train_person_id+'.csv'
+train_path = 'C:\\Users\\RGUKT\\Desktop\\Mahipal\\major-project-2\\Signature-Forgery-Detection\\Features\\Training/training_'+train_person_id+'.csv'
 testing(test_image_path)
-test_path = 'C:\\Users\\SAINI SARKAR\\Desktop\\AxisBankAiChallenge-master\\TestFeatures\\testcsv.csv'
+test_path = 'C:\\Users\\RGUKT\\Desktop\\Mahipal\\major-project-2\\Signature-Forgery-Detection\\TestFeatures/testcsv.csv'
 
 def readCSV(train_path, test_path, type2=False):
     # Reading train data
@@ -356,4 +427,172 @@ def trainAndTest(rate=0.001, epochs=1700, neurons=7, display=False):
 
 
 evaluate(train_path, test_path, type2=True)
+
+
+# In[ ]:
+
+
+C:\Users\RGUKT\Desktop\Mahipal\major-project-2\Signature-Forgery-Detection\real\012012_000.png
+
+
+# In[ ]:
+
+
+C:\Users\RGUKT\Desktop\Mahipal\major-project-2\Signature-Forgery-Detection\forged\001001_000.png
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
 
